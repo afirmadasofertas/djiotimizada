@@ -144,9 +144,10 @@ export default function Hero({ price = "117" }: { price?: string }) {
         }
         @media (max-width: 768px) {
           .hero-fallback-image {
-            object-fit: contain !important;
+            object-fit: cover !important;
             object-position: center top;
-            transform: none;
+            transform: scale(1.08);
+            transform-origin: center top;
             background: #0a0a0a;
           }
         }
