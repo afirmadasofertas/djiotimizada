@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { loadVideoJS, cfHLS, cfPoster } from "@/lib/videojs";
 
 const DESKTOP_ID = "b6f7a464b10049f3729662c390f50496";
@@ -28,6 +28,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
   const mobilePlayer  = useRef<any>(null);
   const desktopReadyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mobileReadyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fallbackRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 768px)");
@@ -37,6 +38,12 @@ export default function Hero({ price = "117" }: { price?: string }) {
     media.addEventListener("change", syncViewport);
 
     return () => media.removeEventListener("change", syncViewport);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (fallbackRef.current?.complete) {
+      setFallbackLoaded(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -162,6 +169,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
         {/* Real img element keeps an immediate LCP candidate before Video.js hydrates. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          ref={fallbackRef}
           className="hero-fallback-image"
           src={HERO_FALLBACK_IMAGE}
           alt=""
@@ -175,7 +183,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            objectPosition: "center 72%",
+            objectPosition: "center 0%",
             opacity: fallbackVisible ? 1 : 0,
             zIndex: 1,
             transform: "scale(1)",
