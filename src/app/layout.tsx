@@ -23,7 +23,9 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://se-cdn.djiits.com" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://customer-siyy2ilzb5oakkgv.cloudflarestream.com" />
+        <link rel="preconnect" href="https://customer-siyy2ilzb5oakkgv.cloudflarestream.com" crossOrigin="anonymous" />
+        <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.10.2/video.min.js" crossOrigin="anonymous" />
+        <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.10.2/video-js.min.css" crossOrigin="anonymous" />
         {config.scripts.map((scriptTag, index) => {
           const innerContentMatch = scriptTag.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
           const innerContent = innerContentMatch ? innerContentMatch[1] : scriptTag;

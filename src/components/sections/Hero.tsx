@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { loadVideoJS, cfHLS } from "@/lib/videojs";
+import { loadVideoJS, cfHLS, cfPoster } from "@/lib/videojs";
 
 const DESKTOP_ID = "b6f7a464b10049f3729662c390f50496";
 const MOBILE_ID  = "2394ce871888898c2766a679cf4556a3";
@@ -116,6 +116,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
           }}
         >
           <video ref={desktopRef} className="hero-vjs video-js" playsInline
+            poster={cfPoster(DESKTOP_ID)}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
         </div>
 
@@ -133,6 +134,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
           }}
         >
           <video ref={mobileRef} className="hero-vjs video-js" playsInline
+            poster={cfPoster(MOBILE_ID)}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
         </div>
       </div>

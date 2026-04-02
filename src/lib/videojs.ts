@@ -29,3 +29,7 @@ const CF = "https://customer-siyy2ilzb5oakkgv.cloudflarestream.com";
 export function cfHLS(videoId: string) {
   return `${CF}/${videoId}/manifest/video.m3u8`;
 }
+
+export function cfPoster(videoId: string) {
+  return `${CF}/${videoId}/thumbnails/thumbnail.jpg?time=0s&height=600`;
+}

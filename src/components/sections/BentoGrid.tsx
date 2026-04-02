@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { loadVideoJS, cfHLS } from "@/lib/videojs";
+import { loadVideoJS, cfHLS, cfPoster } from "@/lib/videojs";
 import { useReveal } from "@/lib/useReveal";
 
 const CARDS = [
@@ -218,9 +218,9 @@ export default function BentoGrid() {
         {CARDS.map((card, i) => (
           <BentoCard key={card.id} card={card} delay={i * 80} />
         ))}
-        {/* Duplicate for infinite loop */}
+        {/* Duplicate for infinite loop — static posters only, no Video.js */}
         {CARDS.map((card, i) => (
-          <BentoCard key={card.id + "-dup"} card={card} delay={i * 80} />
+          <BentoCard key={card.id + "-dup"} card={card} delay={i * 80} isDuplicate />
         ))}
       </div>
     </section>
@@ -233,9 +233,11 @@ export default function BentoGrid() {
 function BentoCard({
   card,
   delay,
+  isDuplicate = false,
 }: {
   card: (typeof CARDS)[number];
   delay: number;
+  isDuplicate?: boolean;
 }) {
   const { ref, visible } = useReveal(0.08);
   const [hovered, setHovered] = useState(false);
@@ -243,6 +245,7 @@ function BentoCard({
   const playerRef = useRef<any>(null);
 
   useEffect(() => {
+    if (isDuplicate) return;
     const videoEl = videoRef.current;
     if (!videoEl) return;
 
@@ -256,7 +259,7 @@ function BentoCard({
         muted: true,
         loop: true,
         controls: false,
-        preload: "auto",
+        preload: "none",
         fill: true,
         fluid: false,
         responsive: false,
@@ -276,14 +279,15 @@ function BentoCard({
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [card.videoId]);
+  }, [card.videoId, isDuplicate]);
 
   // Pause/play on visibility
   useEffect(() => {
+    if (isDuplicate) return;
     const player = playerRef.current;
     if (!player) return;
     if (visible) player.play().catch(() => {});
-  }, [visible]);
+  }, [visible, isDuplicate]);
 
   return (
     <div
@@ -303,7 +307,7 @@ function BentoCard({
         flexShrink: 0,
       }}
     >
-      {/* Video.js player */}
+      {/* Video.js player / static poster for duplicates */}
       <div
         style={{
           position: "absolute",
@@ -313,11 +317,21 @@ function BentoCard({
           willChange: "transform",
         }}
       >
-        <video
-          ref={videoRef}
-          className="video-js"
-          playsInline
-        />
+        {isDuplicate ? (
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url(${cfPoster(card.videoId)})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }} />
+        ) : (
+          <video
+            ref={videoRef}
+            className="video-js"
+            playsInline
+          />
+        )}
       </div>
 
       {/* Mask gradient */}
