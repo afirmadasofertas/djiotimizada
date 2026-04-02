@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { loadVideoJS, cfHLS, cfPoster } from "@/lib/videojs";
 
 const DESKTOP_ID = "b6f7a464b10049f3729662c390f50496";
 const MOBILE_ID  = "2394ce871888898c2766a679cf4556a3";
+const HERO_FALLBACK_IMAGE =
+  "https://imagedelivery.net/jmgC06hj1Xh1brKwMMi-2Q/1fc2c2ec-bd4a-49d7-13fb-787a4f02a600/public";
 
 const TAGS = [
   "Osmo Pocket 3",
@@ -16,16 +18,10 @@ const TAGS = [
 ];
 
 export default function Hero({ price = "117" }: { price?: string }) {
-  const [visible, setVisible] = useState(false);
   const desktopRef = useRef<HTMLVideoElement>(null);
   const mobileRef  = useRef<HTMLVideoElement>(null);
   const desktopPlayer = useRef<any>(null);
   const mobilePlayer  = useRef<any>(null);
-
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setVisible(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
 
   useEffect(() => {
     loadVideoJS().then(() => {
@@ -102,6 +98,23 @@ export default function Hero({ price = "117" }: { price?: string }) {
         aria-hidden="true"
         style={{ position: "absolute", inset: 0, overflow: "hidden", zIndex: 0 }}
       >
+        {/* Real img element keeps an immediate LCP candidate before Video.js hydrates. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={HERO_FALLBACK_IMAGE}
+          alt=""
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+
         {/* Desktop */}
         <div
           className="desktop-video"
@@ -177,10 +190,8 @@ export default function Hero({ price = "117" }: { price?: string }) {
               maxWidth: "500px",
               display: "flex",
               flexDirection: "column",
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(20px)",
-              transition:
-                "opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1)",
+              opacity: 1,
+              transform: "translateY(0)",
             }}
           >
             {/* Logo */}
