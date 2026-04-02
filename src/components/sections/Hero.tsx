@@ -136,7 +136,10 @@ export default function Hero({ price = "117" }: { price?: string }) {
         .hero-vjs.video-js { background: transparent !important; }
         .hero-vjs .vjs-tech { object-fit: cover !important; width: 100% !important; height: 100% !important; position: absolute !important; inset: 0 !important; }
         .hero-vjs .vjs-control-bar, .hero-vjs .vjs-big-play-button, .hero-vjs .vjs-loading-spinner, .hero-vjs .vjs-error-display { display: none !important; }
-        .hero-fallback-image { transition: opacity 0.35s ease; }
+        .hero-fallback-image { transition: opacity 0.35s ease; object-position: center 72%; }
+        @media (max-width: 768px) {
+          .hero-fallback-image { object-position: center 78%; }
+        }
       `}</style>
       <div
         aria-hidden="true"
@@ -157,6 +160,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
             width: "100%",
             height: "100%",
             objectFit: "cover",
+            objectPosition: "center 72%",
             opacity: fallbackVisible ? 1 : 0,
             zIndex: 1,
           }}
