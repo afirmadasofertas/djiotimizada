@@ -146,7 +146,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
           .hero-fallback-image {
             object-fit: cover !important;
             object-position: 50% 0%;
-            transform: scale(1.08);
+            transform: scale(1);
             transform-origin: 50% 0%;
             background: #0a0a0a;
           }
