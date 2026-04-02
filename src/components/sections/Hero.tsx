@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { loadVideoJS, cfHLS, cfPoster } from "@/lib/videojs";
 
 const DESKTOP_ID = "b6f7a464b10049f3729662c390f50496";
@@ -18,10 +18,25 @@ const TAGS = [
 ];
 
 export default function Hero({ price = "117" }: { price?: string }) {
+  const [isMobile, setIsMobile] = useState(false);
+  const [desktopReady, setDesktopReady] = useState(false);
+  const [mobileReady, setMobileReady] = useState(false);
   const desktopRef = useRef<HTMLVideoElement>(null);
   const mobileRef  = useRef<HTMLVideoElement>(null);
   const desktopPlayer = useRef<any>(null);
   const mobilePlayer  = useRef<any>(null);
+  const desktopReadyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mobileReadyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 768px)");
+    const syncViewport = () => setIsMobile(media.matches);
+
+    syncViewport();
+    media.addEventListener("change", syncViewport);
+
+    return () => media.removeEventListener("change", syncViewport);
+  }, []);
 
   useEffect(() => {
     loadVideoJS().then(() => {
@@ -40,20 +55,48 @@ export default function Hero({ price = "117" }: { price?: string }) {
         techOrder: ["html5"],
         sources: [{ src, type: "application/x-mpegURL" }],
       });
+      const markReady = (
+        player: any,
+        timeoutRef: { current: ReturnType<typeof setTimeout> | null },
+        setReady: (ready: boolean) => void,
+      ) => {
+        const showVideo = () => {
+          if (timeoutRef.current) return;
+          timeoutRef.current = setTimeout(() => {
+            setReady(true);
+            timeoutRef.current = null;
+          }, 300);
+        };
 
-      if (desktopRef.current && !desktopPlayer.current)
+        player.one("playing", showVideo);
+        player.one("loadeddata", showVideo);
+      };
+
+      if (desktopRef.current && !desktopPlayer.current) {
         desktopPlayer.current = vjs(desktopRef.current, opts(cfHLS(DESKTOP_ID)));
+        markReady(desktopPlayer.current, desktopReadyTimeout, setDesktopReady);
+      }
 
-      if (mobileRef.current && !mobilePlayer.current)
+      if (mobileRef.current && !mobilePlayer.current) {
         mobilePlayer.current = vjs(mobileRef.current, opts(cfHLS(MOBILE_ID)));
+        markReady(mobilePlayer.current, mobileReadyTimeout, setMobileReady);
+      }
     });
 
     return () => {
+      [desktopReadyTimeout, mobileReadyTimeout].forEach((timeout) => {
+        if (timeout.current) {
+          clearTimeout(timeout.current);
+          timeout.current = null;
+        }
+      });
       [desktopPlayer, mobilePlayer].forEach((p) => {
         if (p.current) { try { p.current.dispose(); } catch (_) {} p.current = null; }
       });
     };
   }, []);
+
+  const fallbackVisible = isMobile ? !mobileReady : !desktopReady;
 
   return (
     <section
@@ -93,6 +136,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
         .hero-vjs.video-js { background: transparent !important; }
         .hero-vjs .vjs-tech { object-fit: cover !important; width: 100% !important; height: 100% !important; position: absolute !important; inset: 0 !important; }
         .hero-vjs .vjs-control-bar, .hero-vjs .vjs-big-play-button, .hero-vjs .vjs-loading-spinner, .hero-vjs .vjs-error-display { display: none !important; }
+        .hero-fallback-image { transition: opacity 0.35s ease; }
       `}</style>
       <div
         aria-hidden="true"
@@ -101,6 +145,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
         {/* Real img element keeps an immediate LCP candidate before Video.js hydrates. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          className="hero-fallback-image"
           src={HERO_FALLBACK_IMAGE}
           alt=""
           fetchPriority="high"
@@ -112,6 +157,8 @@ export default function Hero({ price = "117" }: { price?: string }) {
             width: "100%",
             height: "100%",
             objectFit: "cover",
+            opacity: fallbackVisible ? 1 : 0,
+            zIndex: 1,
           }}
         />
 
@@ -126,6 +173,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
             width: "max(100%, calc(820px * 2.36))",
             height: "max(100%, calc(100vw / 2.36))",
             pointerEvents: "none",
+            zIndex: 0,
           }}
         >
           <video ref={desktopRef} className="hero-vjs video-js" playsInline
@@ -144,6 +192,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
             width: "max(105vw, calc(100vh * 0.5625))",
             height: "max(100vh, calc(105vw * 1.7777))",
             pointerEvents: "none",
+            zIndex: 0,
           }}
         >
           <video ref={mobileRef} className="hero-vjs video-js" playsInline
