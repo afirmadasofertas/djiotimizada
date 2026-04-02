@@ -21,6 +21,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
   const [isMobile, setIsMobile] = useState(false);
   const [desktopReady, setDesktopReady] = useState(false);
   const [mobileReady, setMobileReady] = useState(false);
+  const [fallbackLoaded, setFallbackLoaded] = useState(false);
   const desktopRef = useRef<HTMLVideoElement>(null);
   const mobileRef  = useRef<HTMLVideoElement>(null);
   const desktopPlayer = useRef<any>(null);
@@ -39,6 +40,8 @@ export default function Hero({ price = "117" }: { price?: string }) {
   }, []);
 
   useEffect(() => {
+    if (!fallbackLoaded) return;
+
     loadVideoJS().then(() => {
       const vjs = (window as any).videojs;
       if (!vjs) return;
@@ -94,7 +97,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
         if (p.current) { try { p.current.dispose(); } catch (_) {} p.current = null; }
       });
     };
-  }, []);
+  }, [fallbackLoaded]);
 
   const fallbackVisible = isMobile ? !mobileReady : !desktopReady;
 
@@ -165,6 +168,7 @@ export default function Hero({ price = "117" }: { price?: string }) {
           fetchPriority="high"
           loading="eager"
           decoding="async"
+          onLoad={() => setFallbackLoaded(true)}
           style={{
             position: "absolute",
             inset: 0,

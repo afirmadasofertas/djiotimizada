@@ -24,6 +24,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://se-cdn.djiits.com" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://customer-siyy2ilzb5oakkgv.cloudflarestream.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://imagedelivery.net" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://imagedelivery.net" />
+        <link
+          rel="preload"
+          as="image"
+          href="https://imagedelivery.net/jmgC06hj1Xh1brKwMMi-2Q/1fc2c2ec-bd4a-49d7-13fb-787a4f02a600/public"
+          fetchPriority="high"
+        />
         <link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.10.2/video.min.js" crossOrigin="anonymous" />
         <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.10.2/video-js.min.css" crossOrigin="anonymous" />
         {config.scripts.map((scriptTag, index) => {
